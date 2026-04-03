@@ -1,0 +1,15 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# PyTorch is installed separately (CUDA 12.6 Nightly for RTX 50 Series)
+# DO NOT add torch / torchaudio here or pip will downgrade CUDA support
+
+transformers==4.35.2
+safetensors==0.4.1
+numpy==1.24.3
+python-multipart==0.0.6
+websockets==11.0.3
+pyyaml>=6.0
+
+# NeMo toolkit - optional for .nemo model support
+# Install separately if needed: pip install nemo_toolkit

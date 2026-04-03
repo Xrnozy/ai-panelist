@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Audio Transcriber</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <h2>Loading Transcriber...</h2>
+                <p id="loadingStatus">Connecting to backend...</p>
+            </div>
+        </div>
+        <!-- Header -->
+        <header class="header">
+            <h1>🎙️ Tab Audio Transcriber</h1>
+            <div class="header-controls">
+                <button id="shareTabBtn" class="btn btn-primary">📊 Share Tab & Start</button>
+                <button id="stopBtn" class="btn btn-danger" disabled>⏹️ Stop</button>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Model:</span>
+                <span id="modelStatus" class="status-value">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">GPU:</span>
+                <span id="gpuStatus" class="status-value">Detecting...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Audio:</span>
+                <span id="audioStatus" class="status-value">Ready</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Status:</span>
+                <span id="connectionStatus" class="status-value">Disconnected</span>
+            </div>
+        </div>
+
+        <!-- Tab Selection -->
+        <div class="tab-selector">
+            <button class="tab-btn active" data-tab="live-tab">🔴 Live Tab Capture</button>
+            <button class="tab-btn" data-tab="file-tab">📁 Upload Audio File</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-grid">
+            <!-- Live Tab Capture Section -->
+            <div id="live-tab" class="tab-content active">
+                <!-- Left: Waveform and Controls -->
+                <div class="left-panel">
+                    <div class="panel-section">
+                        <h3>Shared Tab Preview</h3>
+                        <video id="sharedTabPreview" class="shared-tab-preview" style="display:none;"></video>
+                        <div id="noPreviewMessage" class="preview-placeholder">
+                            Click "Share Tab & Start" to see preview
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3>Audio Level</h3>
+                        <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+                        <div class="level-bar-container">
+                            <div id="levelBar" class="level-bar"></div>
+                        </div>
+                        <div class="level-text">
+                            <span id="levelValue">0</span>%
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3>Playback Controls</h3>
+                        <div class="controls">
+                            <label>
+                                <input type="checkbox" id="autoScrollCheckbox" checked>
+                                Auto-scroll transcript
+                            </label>
+                            <label>
+                                <input type="checkbox" id="timestampCheckbox">
+                                Show timestamps
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3>Export</h3>
+                        <button id="exportTxtBtn" class="btn btn-secondary">📄 Export TXT</button>
+                        <button id="exportSrtBtn" class="btn btn-secondary">🎬 Export SRT</button>
+                        <button id="clearBtn" class="btn btn-secondary">🗑️ Clear All</button>
+                    </div>
+                </div>
+
+                <!-- Right: Live Caption and History -->
+                <div class="right-panel">
+                    <!-- Live Caption -->
+                    <div class="panel-section live-caption-section">
+                        <h3>Live Caption</h3>
+                        <div id="liveCaption" class="live-caption">
+                            <span class="placeholder">Waiting for audio...</span>
+                        </div>
+                    </div>
+
+                    <!-- Transcript History -->
+                    <div class="panel-section transcript-section">
+                        <h3>Transcript History</h3>
+                        <div id="transcriptContainer" class="transcript-container">
+                            <div class="empty-message">Transcript will appear here...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div id="file-tab" class="tab-content">
+                <div class="file-upload-container">
+                    <!-- Drag and Drop Zone -->
+                    <div id="dropZone" class="drop-zone">
+                        <div class="drop-zone-content">
+                            <div class="drop-zone-icon">📤</div>
+                            <h3>Drag & Drop Audio File Here</h3>
+                            <p>or click to browse</p>
+                            <p class="supported-formats">Supports: MP3, WAV, M4A, FLAC, OGG, AAC, WMA, OPUS</p>
+                        </div>
+                        <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                    </div>
+
+                    <!-- File Info and Progress -->
+                    <div id="uploadProgress" class="upload-progress" style="display: none;">
+                        <div class="file-info">
+                            <div class="info-item">
+                                <span class="info-label">File:</span>
+                                <span id="uploadFileName" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Size:</span>
+                                <span id="uploadFileSize" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Duration:</span>
+                                <span id="uploadDuration" class="info-value">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="progress-section">
+                            <div class="progress-label">
+                                <span id="progressText">Processing...</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="progressFill" class="progress-fill"></div>
+                            </div>
+                        </div>
+
+                        <!-- Status Message -->
+                        <div id="uploadStatus" class="upload-status">
+                            <p id="statusMessage">Uploading file...</p>
+                        </div>
+
+                        <button id="cancelUploadBtn" class="btn btn-secondary">❌ Cancel</button>
+                    </div>
+
+                    <!-- Transcript Display -->
+                    <div id="transcriptDisplay" class="transcript-display" style="display: none;">
+                        <div class="transcript-header">
+                            <h3>Transcription Result</h3>
+                            <div class="transcript-info">
+                                <span id="transcriptLanguage" class="lang-badge">-</span>
+                                <span id="transcriptConfidence" class="confidence-badge">-</span>
+                            </div>
+                        </div>
+
+                        <div id="fileTranscriptText" class="file-transcript-text">
+                            <!-- Transcript text will be inserted here -->
+                        </div>
+
+                        <div class="transcript-actions">
+                            <button id="copyTranscriptBtn" class="btn btn-secondary">📋 Copy</button>
+                            <button id="downloadTxtBtn" class="btn btn-secondary">📄 Download TXT</button>
+                            <button id="downloadSrtBtn" class="btn btn-secondary">🎬 Download SRT</button>
+                            <button id="newUploadBtn" class="btn btn-primary">➕ New File</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio-capture.js"></script>
+    <script src="visualization.js"></script>
+    <script src="file-upload.js"></script>

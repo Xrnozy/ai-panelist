@@ -1,0 +1,21 @@
+# Core dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# PyTorch is installed separately (CUDA 12.8 Nightly for RTX 5060 Ti - Blackwell)
+# DO NOT add torch / torchaudio here or pip will downgrade CUDA support
+
+# AI/ML Stack
+transformers==4.35.2
+sentence-transformers==2.7.0
+accelerate==0.27.1
+safetensors==0.4.1
+huggingface_hub==0.20.3
+protobuf==3.20.0
+
+# Utilities
+python-multipart==0.0.6
+httpx==0.25.0
+aiofiles==23.2.1
+orjson==3.9.10
