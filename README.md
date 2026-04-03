@@ -1,5 +1,7 @@
 # AI Panelist - Research Paper Review System
 
+> ⚠️ **PROJECT STATUS**: This project is incomplete and has been dropped. Use at your own discretion.
+
 An AI-powered system for analyzing research papers and simulating expert panel reviews using state-of-the-art language models.
 
 ## Features
